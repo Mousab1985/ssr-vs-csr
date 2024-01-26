@@ -3,8 +3,17 @@ import { API_KEY } from "@/constants";
 import styles from "../page.module.css";
 import SSRReload from "@/components/ssrReload";
 import { imageUrlToBase64 } from "@/helpers";
-
 async function getData() {
+  const response = await fetch(
+    `https://api.nasa.gov/planetary/apod?api_key=${API_KEY}&count=1&thumbs=true`,
+    { cache: "no-cache" }
+  );
+  if (!response.ok) {
+    // This will activate the closest `error.js` Error Boundary
+    throw new Error("Failed to fetch data");
+  }
+  const [json] = await response.json();
+  [json].image = imageUrlToBase64(json.url)
   // Exercise 1 - Fetch the data here...
   //
   //
@@ -12,12 +21,10 @@ async function getData() {
   //
   //
   // Uncomment this when you're ready
-  // return json
+  return json;
 }
-
 export default async function SSR() {
   const data = await getData();
-
   return (
     <main className={styles.main}>
       <div className={styles.title}>SERVER-SIDE RENDERED</div>
